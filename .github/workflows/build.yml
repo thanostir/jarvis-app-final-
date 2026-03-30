@@ -12,6 +12,15 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
+      - name: Find and move files to root
+        run: |
+          $sub = Get-ChildItem -Directory | Where-Object { Test-Path "$($_.FullName)\package.json" } | Select-Object -First 1
+          if ($sub) {
+            Write-Host "Moving files from $($sub.Name) to root"
+            Get-ChildItem $sub.FullName | Move-Item -Destination . -Force
+            Remove-Item $sub.FullName -Recurse -Force
+          }
+        shell: pwsh
       - run: npm install
       - run: npm run build
         env:
